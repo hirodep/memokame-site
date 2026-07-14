@@ -203,9 +203,30 @@
     opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; z-index:300;
   }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(-6px); }
+
+  /* ---------- password gate (remove this whole block when the site goes fully public) ---------- */
+  #password-gate{
+    position:fixed; inset:0; z-index:1000; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .gate-box{ text-align:center; max-width:320px; width:100%; }
+  .gate-box input{ margin:16px 0 6px; text-align:center; }
+  .gate-hint{ font-size:13px; color:var(--ink-soft); margin-top:12px; }
+  .gate-error{ font-size:12px; color:var(--rose); min-height:16px; margin-top:10px; }
 </style>
 </head>
 <body>
+
+<!-- ---------- password gate (remove this whole block when the site goes fully public) ---------- -->
+<div id="password-gate">
+  <div class="gate-box">
+    <h2 class="brandfont" style="font-size:22px; margin-bottom:6px;">memokame</h2>
+    <p class="gate-hint">this preview is private — enter the password to continue</p>
+    <input type="password" id="gatePw" placeholder="Password">
+    <button class="btn btn-primary btn-block" id="gateBtn">Enter</button>
+    <p class="gate-error" id="gateError"></p>
+  </div>
+</div>
 
 <div id="proto-bar">
   <span class="lbl">Prototype viewer — jump to any screen:</span>
@@ -215,6 +236,24 @@
 <div class="toast" id="toast"></div>
 
 <script>
+/* ============ password gate — CHANGE this before sharing the link ============ */
+const SITE_PASSWORD = "memokame2026";
+(function(){
+  const gate = document.getElementById('password-gate');
+  if(sessionStorage.getItem('mk_unlocked') === 'yes'){ gate.style.display = 'none'; return; }
+  function tryUnlock(){
+    const val = document.getElementById('gatePw').value;
+    if(val === SITE_PASSWORD){
+      sessionStorage.setItem('mk_unlocked', 'yes');
+      gate.style.display = 'none';
+    } else {
+      document.getElementById('gateError').textContent = 'Incorrect password';
+    }
+  }
+  document.getElementById('gateBtn').addEventListener('click', tryUnlock);
+  document.getElementById('gatePw').addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
+})();
+
 /* ============ mock data ============ */
 const PRODUCTS = [
   { id:'custom-cat', name:'Custom cat sticker pack', price:18, tagline:"Your cat, hand-illustrated into a one-of-a-kind 5-sticker set.", accent:'gold', custom:true },
